@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .item {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <input type="text" id="item-name" placeholder="Item name">
+    <input type="number" id="item-price" placeholder="Item price">
+    <button id="submit-btn">Submit</button>
+
+    <div id="items-container"></div>
+
+    <script>
+        const itemName = document.getElementById('item-name');
+        const itemPrice = document.getElementById('item-price');
+        const submitBtn = document.getElementById('submit-btn');
+        const itemsContainer = document.getElementById('items-container');
+
+        const sendData = async () => {
+            try {
+                const res = await fetch('http://127.0.0.1:5000/items', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: itemName.value,
+                        price: itemPrice.value
+                    })
+                });
+
+                const data = await res.json();
+                if (res.status === 201) {
+                    alert('Successfully added an item');
+                    addItemToDOM(data);
+                } else {
+                    alert('Error occurred');
+                    console.error(data);
+                }
+            } catch (e) {
+                alert('Error occurred');
+                console.error(e);
+            }
+        };
+
+        const getData = async () => {
+            try {
+                const res = await fetch('http://127.0.0.1:5000/items', {
+                    method: 'GET'
+                });
+
+                const data = await res.json();
+                if (res.status === 200) {
+                    data.forEach(item => addItemToDOM(item));
+                } else {
+                    console.error(data);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        const addItemToDOM = (item) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.classList.add('item');
+            itemDiv.innerHTML = `ID: ${item.id}, Name: ${item.name}, Price: ${item.price}`;
+            itemsContainer.appendChild(itemDiv);
+        };
+
+        submitBtn.addEventListener('click', sendData);
+        getData();
+    </script>
+</body>
+
+</html>
